@@ -43,7 +43,7 @@ class LearningDatabase:
             CREATE TABLE IF NOT EXISTS dictation_topic (
                 topic_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 topic_name TEXT NOT NULL,
-                difficulty_level TEXT CHECK(difficulty_level IN ('beginner', 'intermediate', 'advanced'))
+                difficulty_level TEXT CHECK(difficulty_level IN ('easy', 'hard'))
             );
 
             -- Dictation questions table
@@ -246,5 +246,5 @@ class LearningDatabase:
 if __name__ == "__main__":
     db = LearningDatabase("learning.db")
     db.add_flashcard(1,"Python", "A high-level programming language.")
-    db.add_dictation_topic("A litte snow", "beginner")
+    db.add_dictation_topic("A litte snow", "easy")
     db.add_dictation_question("1", "Something like that", 12, "D:\\audio.mp3")
