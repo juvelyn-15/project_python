@@ -7,3 +7,4 @@ def install_package(package):
 
 # Install nicegui
 install_package("nicegui")
+install_package("werkzeug")
