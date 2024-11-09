@@ -246,7 +246,7 @@ def reset_password_page(username: str):
                     if user:
                         # Cập nhật mật khẩu mới đã được mã hóa
                         user.password_hash = generate_password_hash(new_password.value)
-                        user.update_user_password(user.username, user.password_hash)
+                        user_db.update_user_password(user.username, user.password_hash)
                         # Hiển thị thông báo thành công
                         ui.notify('Change password successfully!', color='positive')
                         # Ẩn nút đặt lại mật khẩu
