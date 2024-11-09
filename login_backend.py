@@ -97,6 +97,16 @@ class UserDatabase:
         if user and user.check_password(password):
             return True, "Log in successfully!"
         return False, "Invalid login information!"
+    
+    def update_user_password(self, username, new_password):
+        with sqlite3.connect(self.database_file) as conn:
+            cursor = conn.execute("SELECT * FROM user WHERE username = ?", (username,))
+            user = cursor.fetchone()
+            cursor.execute("UPDATE user SET password_hash = ? WHERE username = ?", (new_password, username))
+            conn.commit()
+            return True, 'Change password successfully!'
+    
+
 
 
 

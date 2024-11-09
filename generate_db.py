@@ -138,24 +138,6 @@ class LearningDatabase:
         
         self.conn.commit()
 
-    def add_user(self, username, fullname, email, birthdate, password_hash):
-        """Insert a new user into the user table"""
-        self.connect()
-        try:
-            self.cursor.execute(
-                '''
-                INSERT INTO user (username, fullname, email, birthdate, password_hash) 
-                VALUES (?, ?, ?, ?, ?)
-                ''',
-                (username, fullname, email, birthdate, password_hash)
-            )
-            self.conn.commit()
-            print("User added successfully.")
-        except sqlite3.IntegrityError as e:
-            print(f"Error adding user: {e}")
-        #finally:
-            #self.close()
-
     def add_flashcard(self, topic_id, front_content, back_content):
         """Add a new flashcard"""
         try:
@@ -243,8 +225,4 @@ class LearningDatabase:
         except sqlite3.Error as e:
             print(f"Error adding reading question: {e}")
             return None
-if __name__ == "__main__":
-    db = LearningDatabase("learning.db")
-    db.add_flashcard(1,"Python", "A high-level programming language.")
-    db.add_dictation_topic("A litte snow", "easy")
-    db.add_dictation_question("1", "Something like that", 12, "D:\\audio.mp3")
+generate_tables()

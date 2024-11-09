@@ -1,9 +1,79 @@
 from nicegui import ui
-from login_backend import User , UserDatabase
-from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
-user_db = UserDatabase()
+from datetime import datetime, timedelta
+from typing import List, Dict
+import json
 
+# Định nghĩa lớp User để đại diện cho người dùng trong hệ thống
+class User:
+    def __init__(self, username, fullname, email, birthdate, password=None, password_hash=None):
+        self.username = username  # Tên đăng nhập
+        self.fullname = fullname  # Họ tên đầy đủ
+        self.email = email        # Email người dùng
+        self.birthdate = birthdate  # Ngày sinh
+        if password:
+            self.password_hash = generate_password_hash(password)  # Mã hóa mật khẩu mới
+        else:
+            self.password_hash = password_hash  # Sử dụng mật khẩu đã mã hóa
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)  # Kiểm tra mật khẩu có khớp không
+
+# Định nghĩa lớp UserDatabase để quản lý dữ liệu người dùng
+class UserDatabase:
+    def __init__(self, filepath='users.json'):
+        self.filepath = filepath  # Đường dẫn file JSON lưu dữ liệu
+        self.users = self.load_users()  # Tải dữ liệu người dùng khi khởi tạo
+
+    def add_user(self, user):
+        # Kiểm tra username đã tồn tại
+        if user.username in self.users:
+            return False, "Username already exists!"
+        
+        # Kiểm tra email đã được sử dụng
+        for u in self.users.values():
+            if u.email == user.email:
+                return False, "Email is already in use!"
+            
+        # Thêm user mới và lưu vào file
+        self.users[user.username] = user
+        self.save_users()
+        return True, "Sign in successfully!"
+
+    def load_users(self):
+        # Đọc dữ liệu từ file JSON
+        try:
+            with open(self.filepath, 'r') as file:
+                users_data = json.load(file)
+                return {username: User(**user) for username, user in users_data.items()}
+        except (FileNotFoundError, json.JSONDecodeError):
+            return {}  # Trả về dict rỗng nếu file không tồn tại hoặc lỗi
+
+    def save_users(self):
+        # Lưu dữ liệu người dùng vào file JSON
+        with open(self.filepath, 'w') as file:
+            json.dump({username: user.__dict__ for username, user in self.users.items()}, file)
+
+    def find_user_by_username(self, username):
+        # Tìm user theo username
+        return self.users.get(username)
+
+    def find_user_by_email(self, email):
+        # Tìm user theo email
+        for user in self.users.values():
+            if user.email == email:
+                return user
+        return None
+
+    def authenticate_user(self, username, password):
+        # Xác thực thông tin đăng nhập
+        user = self.find_user_by_username(username) or self.find_user_by_email(username)
+        if user and user.check_password(password):
+            return True, "Log in successfully!"
+        return False, "Invalid login information!"
+
+# Khởi tạo đối tượng database
+user_db = UserDatabase()
 
 # Các hàm tiện ích (utility functions)
 def create_centered_container():
@@ -21,8 +91,7 @@ def get_date_limits():
     min_date = (today - timedelta(days=365 * 100)).strftime('%Y-%m-%d')  # 100 năm trước
     return min_date, max_date
 
-#Trang đăng nhập
-
+# Trang đăng nhập (/)
 @ui.page('/')
 def login_page():
     ui.query('body').style('margin: 0; padding: 0; background: linear-gradient(135deg, #f0f4ff, #e5e7ff);')
@@ -56,7 +125,7 @@ def login_page():
                     ui.label('Do not have account yet?').classes('text-center')
                     ui.link('Create account', '/register').classes('text-blue-500 hover:text-blue-700 cursor-pointer no-underline')
 
-# Trang đăng ký
+# Trang đăng ký (/register)
 @ui.page('/register')
 def register_page():
     ui.query('body').style('margin: 0; padding: 0; background: linear-gradient(135deg, #f0f4ff, #e5e7ff);')
@@ -171,7 +240,6 @@ def forgot_password_page():
                     ui.link('Back to log in', '/').classes('text-blue-500 hover:text-blue-700 cursor-pointer no-underline')
 
 # Trang xác minh tài khoản (/verify-account/{username})
-
 @ui.page('/verify-account/{username}')
 def verify_account_page(username: str):
     ui.query('body').style('margin: 0; padding: 0; background: linear-gradient(135deg, #f0f4ff, #e5e7ff);')
@@ -246,7 +314,6 @@ def reset_password_page(username: str):
                     if user:
                         # Cập nhật mật khẩu mới đã được mã hóa
                         user.password_hash = generate_password_hash(new_password.value)
-                        user.update_user_password(user.username, user.password_hash)
                         # Hiển thị thông báo thành công
                         ui.notify('Change password successfully!', color='positive')
                         # Ẩn nút đặt lại mật khẩu
@@ -260,15 +327,29 @@ def reset_password_page(username: str):
                 
                 # Gán hàm xử lý sự kiện cho nút đặt lại mật khẩu
                 reset_button.on_click(reset_password)
+
+# Định nghĩa trang chủ sau khi đăng nhập
 @ui.page('/home')
 def home_page():
-    ui.query('body').style('margin: 0; padding: 0; background: linear-gradient(135deg, #f0f4ff, #e5e7ff);')
+    #ui.query('body').style('margin: 0; padding: 0; background: linear-gradient(135deg, #f0f4ff, #e5e7ff);')
     # Tạo cột chứa nội dung trang chủ
-    with ui.column().classes('w-full items-center p-4'):
+    #with ui.column().classes('w-full items-center p-4'):
         # Hiển thị thông điệp chào mừng
-        ui.label('Chào mừng đến trang chủ!').classes('text-2xl font-bold mb-4')
+    #    ui.label('Chào mừng đến trang chủ!')\
+    #        .classes('text-2xl font-bold mb-4')
         # Tạo nút đăng xuất và chuyển hướng về trang đăng nhập
-        ui.button('Đăng xuất', on_click=lambda: redirect('/')).classes('bg-red-500 text-white')
+    #    ui.button('Đăng xuất', on_click=lambda: redirect('/'))\
+    #        .classes('bg-red-500 text-white')
     pass
-ui.run()
 
+# In ra danh sách người dùng đã đăng kí trước đó
+print("User list:")
+for username, user in user_db.users.items():
+    print(f"Username: {username}")
+    print(f"Fullname: {user.fullname}")
+    print(f"Email: {user.email}")
+    print(f"Birthdate: {user.birthdate}")
+    print("-------------------")
+
+# Khởi chạy ứng dụng
+ui.run()
