@@ -1,4 +1,5 @@
 import sqlite3
+import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from typing import List, Dict
@@ -21,8 +22,9 @@ class User:
 
 # Định nghĩa lớp UserDatabase để quản lý dữ liệu người dùng
 class UserDatabase:
-    def __init__(self, database_file='learning.db'):
-        self.database_file = database_file
+    def __init__(self):
+        db_path = os.path.join(os.path.dirname(__file__), "learning.db")
+        self.database_file = db_path
 
     def add_user(self, user):
         with sqlite3.connect(self.database_file) as conn:
@@ -105,6 +107,7 @@ class UserDatabase:
             cursor.execute("UPDATE user SET password_hash = ? WHERE username = ?", (new_password, username))
             conn.commit()
             return True, 'Change password successfully!'
+user_db = UserDatabase()
     
 
 
