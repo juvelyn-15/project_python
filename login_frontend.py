@@ -157,6 +157,10 @@ def register_page():
                         return
                     
                     # Kiểm tra mật khẩu
+                    # Yêu cầu độ mạnh của mật khẩu
+                    if len(password_input.value) < 8 or not any(char.isupper() for char in password_input.value) or not any(char.isdigit() for char in password_input.value):
+                        ui.notify('Password must be at least 8 characters long, contain at least 1 uppercase letter, 1 lowercase letter, 1 number.', color='negative')
+                        return
                     if password_input.value != confirm_password_input.value:
                         ui.notify('Password does not match!', color='negative')
                         return
