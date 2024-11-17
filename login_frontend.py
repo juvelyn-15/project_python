@@ -2,7 +2,7 @@ from nicegui import ui
 from login_backend import User , UserDatabase, user_db
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
-
+from typing import List, Dict
 
 def create_intro_page():
     nav_items: List[Dict] = [
