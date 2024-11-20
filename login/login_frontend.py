@@ -88,7 +88,7 @@ def login_page():
                 with ui.column().classes('w-full gap-4'):
                 # Form đăng nhập
                     with ui.row().classes('w-full items-center gap-2'):
-                        username_input = ui.input('Your email...').props('rounded').props('outlined required').classes('w-full')    
+                        username_input = ui.input('Your username...').props('rounded').props('outlined required').classes('w-full')    
                     with ui.row().classes('w-full items-center gap-2'):
                         password_input = ui.input('Enter password...').props('rounded').props('outlined required type=password').classes('w-full')
                 # Link quên mật khẩu
@@ -99,6 +99,7 @@ def login_page():
                         success, message = user_db.authenticate_user(username_input.value, password_input.value)
                         ui.notify(message, color='positive' if success else 'negative')
                         if success:
+                            user_db.set_user_status_on_by_username(username_input.value)
                             redirect('/home')
 
                 # Nút đăng nhập
@@ -140,6 +141,16 @@ def register_page():
                 
                 # Xử lý đăng ký
                 async def validate_and_register():
+
+                    #Check email,username
+                    if user_db.find_user_by_email(email_input.value):
+                        ui.notify('Existed email', color = 'negative')
+                    if not '@' in email_input.value:
+                        ui.notify('Invalid email!', color='negative')
+                        return
+                    if user_db.find_user_by_username(username_input.value):
+                        ui.notify('Existed username', color = 'negative')
+
                     # Kiểm tra ngày sinh
                     if not birthdate_input.value:
                         ui.notify('Please enter your date of birth!', color='negative')
@@ -163,11 +174,6 @@ def register_page():
                         return
                     if password_input.value != confirm_password_input.value:
                         ui.notify('Password does not match!', color='negative')
-                        return
-                    
-                    # Kiểm tra email
-                    if not '@' in email_input.value:
-                        ui.notify('Invalid email!', color='negative')
                         return
                     
                     # Tạo user mới

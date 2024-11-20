@@ -95,7 +95,7 @@ class UserDatabase:
                 return None
 
     def authenticate_user(self, username, password):
-        user = self.find_user_by_username(username) or self.find_user_by_email(username)
+        user = self.find_user_by_username(username)
         if user and user.check_password(password):
             return True, "Log in successfully!"
         return False, "Invalid login information!"
@@ -107,6 +107,20 @@ class UserDatabase:
             cursor.execute("UPDATE user SET password_hash = ? WHERE username = ?", (new_password, username))
             conn.commit()
             return True, 'Change password successfully!'
+    def set_user_status_on_by_username(self, username):
+        with sqlite3.connect(self.database_file) as conn:
+            cursor = conn.execute("SELECT * FROM user WHERE username = ?", (username,))
+            user = cursor.fetchone()
+            cursor.execute("UPDATE user SET status = 'on' WHERE username = ?", ( username,))
+            conn.commit()
+            return True, 'Change status successfully!'
+    def set_user_status_off_by_username(self, username):
+        with sqlite3.connect(self.database_file) as conn:
+            cursor = conn.execute("SELECT * FROM user WHERE username = ?", (username,))
+            user = cursor.fetchone()
+            cursor.execute("UPDATE user SET status = 'off' WHERE username = ?", (username,))
+            conn.commit()
+            return True, 'Change status successfully!'
 user_db = UserDatabase()
     
 
