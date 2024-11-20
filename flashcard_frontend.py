@@ -1,5 +1,5 @@
 from nicegui import ui
-from flashcard_backend import FlashcardManager
+from backend import FlashcardManager
 from typing import List, Dict, Optional
 
 class FlashcardStudyPanel:
@@ -10,7 +10,8 @@ class FlashcardStudyPanel:
         self.current_index: int = 0
         self.is_flipped: bool = False
         self.ui_elements: Dict = {}
-        self.main_container = ui.column().classes('w-full min-h-screen items-center p-4 bg-gradient-to-br from-indigo-50 to-blue-50')
+        self.main_container = ui.column().classes('w-full min-h-screen items-center p-4') \
+                .style('width: 144%; height: 80px; padding: 20px;').classes('p-8 flex-1').style('background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px);')
         
         # Create containers for different views
         with self.main_container:
@@ -24,7 +25,9 @@ class FlashcardStudyPanel:
     def setup_topic_view(self) -> None:
         """Initialize the topic selection view."""
         with self.topic_view:
-            ui.label('FLASHCARD STUDY').classes('text-2xl font-bold text-gray-700 mb-6')
+            with ui.row().classes('w-full items-center gap-4 mb-6'):
+                ui.icon('school', size='32px').classes('text-pink-600')
+                ui.label('FLASHCARD STUDY').classes('text-2xl font-bold text-pink-600')
             
             # Topic Selection Grid
             with ui.grid(columns=3).classes('w-full gap-4'):
@@ -41,7 +44,7 @@ class FlashcardStudyPanel:
                     ui.button(
                         'Study Now',
                         on_click=lambda t=topic: self.show_flashcard_view(t)
-                    ).props('rounded').classes('bg-indigo text-white px-4 py-2 hover:bg-indigo-700')
+                    ).props('rounded').classes('bg-pink text-white px-4 py-2 hover:bg-pink-700')
 
     def setup_flashcard_view(self) -> None:
         """Initialize the flashcard study view (initially hidden)."""
@@ -60,7 +63,7 @@ class FlashcardStudyPanel:
             ui.button(
                 'Back to Topics',
                 on_click=self.show_topic_view
-            ).props('rounded').classes('bg-indigo text-white px-6 py-2 rounded-lg hover:bg-indigo-700')
+            ).props('rounded').classes('bg-pink text-white px-6 py-2 rounded-lg hover:bg-pink-700')
 
     def _create_flashcard_content(self) -> None:
         """Create the flashcard content area with front and back faces."""
@@ -77,7 +80,7 @@ class FlashcardStudyPanel:
             
             # Back face
             self.ui_elements['back'] = ui.column().classes(
-                'w-full h-full items-center justify-center p-8 bg-indigo-50'
+                'w-full h-full items-center justify-center p-8 bg-pink-50'
             )
             with self.ui_elements['back']:
                 self.ui_elements['info'] = ui.label().classes('text-xl text-center')
@@ -91,14 +94,14 @@ class FlashcardStudyPanel:
             self.ui_elements['prev_btn'] = ui.button(
                 'Previous',
                 on_click=self.previous_card
-            ).props('rounded').classes('bg-indigo text-white px-4 py-2  hover:bg-indigo-700')
+            ).props('rounded').classes('bg-pink text-white px-4 py-2  hover:bg-pink-700')
             
             self.ui_elements['progress'] = ui.label().classes('text-gray-600')
             
             self.ui_elements['next_btn'] = ui.button(
                 'Next',
                 on_click=self.next_card
-            ).props('rounded').classes('bg-indigo text-white px-4 py-2 hover:bg-indigo-700')
+            ).props('rounded').classes('bg-pink text-white px-4 py-2 hover:bg-pink-700')
 
     def show_flashcard_view(self, topic: str) -> None:
         """Switch to flashcard view and load the selected topic."""
