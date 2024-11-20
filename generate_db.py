@@ -78,31 +78,118 @@ class LearningDatabase:
         
         self.conn.commit()
 
-    def add_flashcard(self, topic_id, front_content, back_content):
-        """Add a new flashcard"""
+    def add_flashcard(self, topic_name, front_content, back_content):
         try:
+            self.cursor.execute('''
+                SELECT user_id 
+                FROM user
+                WHERE status = 'on'
+            ''')
+            active_user = self.cursor.fetchone()
+            print("Active Users:", active_user)
+            user_id = active_user[0]
+           # Find the topic_id based on the topic_name and user_id
+            self.cursor.execute('''
+                SELECT topic_id 
+                FROM personal_flashcard_topic 
+                WHERE user_id = ? AND topic_name = ?
+            ''', (user_id, topic_name))
+        
+            result = self.cursor.fetchone()
+            if result is None:
+                print(f"No topic found for user_id: {user_id}, topic: {topic_name}")
+                return False, 'No topic found'
+        
+            topic_id = result[0]
+
+            # Check if card already exists
+            self.cursor.execute('''
+                SELECT 1 FROM flashcard f
+                JOIN personal_flashcard_topic pt ON f.topic_id = pt.topic_id
+                WHERE pt.user_id = ? 
+                AND pt.topic_name = ? 
+                AND f.front_content = ?
+            ''', (user_id, topic_name, front_content))
+        
+            if self.cursor.fetchone():
+                print("Card already exists")
+                return False, 'Card already exists'
+            # Insert the flashcard using the found topic_id
             self.cursor.execute('''
                 INSERT INTO flashcard (topic_id, front_content, back_content)
                 VALUES (?, ?, ?)
             ''', (topic_id, front_content, back_content))
+            self.add_user_review(user_id, front_content, back_content)
             self.conn.commit()
-            return self.cursor.lastrowid
+            album_id = self.cursor.lastrowid
+        
+            # Nếu chèn thành công, trả về một tuple gồm success và thông báo
+            if album_id:
+                return True, f"Album created successfully with ID {album_id}"
+            else:
+                return False, "Failed to create album"
         except sqlite3.Error as e:
             print(f"Error adding flashcard: {e}")
-            return None
+            return False,   'Không tìm thấy album'
         
-    def add_flashcard_topic(self, topic_name, description=None):
+    def add_flashcard_topic(self, topic_name):
         """Add a new flashcard topic"""
         try:
             self.cursor.execute('''
-                INSERT INTO personal_flashcard_topic (topic_name, description)
+                SELECT user_id 
+                FROM user
+                WHERE status = 'on'
+            ''')
+            active_user = self.cursor.fetchone()
+            if not active_user:
+                return False, "No active user found"
+            print("Active Users:", active_user)
+            user_id = active_user[0]
+            self.cursor.execute('''
+                INSERT INTO personal_flashcard_topic (user_id, topic_name)
                 VALUES (?, ?)
-            ''', (topic_name, description))
+            ''', (user_id, topic_name))
             self.conn.commit()
-            return self.cursor.lastrowid
+            album_id = self.cursor.lastrowid
+        
+            # Nếu chèn thành công, trả về một tuple gồm success và thông báo
+            if album_id:
+                return True, f"Album created successfully with ID {album_id}"
+            else:
+                return False, "Failed to create album"
         except sqlite3.Error as e:
             print(f"Error adding flashcard topic: {e}")
-            return None
+            return False, f"Error adding flashcard topic: {e}"
+    def load_user_personal_flashcard_topic(self):
+        """Load cards for active users from personal_flashcard_topic"""
+        try:
+        # Find users with 'on' status from user_information table
+            self.cursor.execute('''
+                SELECT user_id 
+                FROM user
+                WHERE status = 'on'
+            ''')
+            active_user = self.cursor.fetchone()
+            print("Active Users:", active_user)
+            user_id = active_user[0]
+
+            self.cursor.execute('''
+                SELECT topic_name
+                FROM personal_flashcard_topic
+                WHERE user_id = ?
+            ''', (user_id,))
+            # Lấy tất cả kết quả từ truy vấn
+            rows = self.cursor.fetchall()
+        
+            # Lưu vào album review_album
+            topics = [row[0] for row in rows]
+            print(topics)
+            return topics
+
+        except sqlite3.Error as e:
+            print(f"Error loading review album: {e}")
+            return []
+    
     def add_user_review(self, user_id, front_content, back_content):
         """Add a new user review record"""
         try:
@@ -151,10 +238,18 @@ class LearningDatabase:
         except sqlite3.Error as e:
             print(f"Error counting all reviews: {e}")
             return None
-    def load_user_review_album(self, user_id):
+    def load_user_review_album(self):
         """Load all front_content and back_content for a specific user into review_album"""
         try:
-        # Truy vấn để lấy tất cả front_content và back_content của user_id
+            # Truy vấn để lấy tất cả front_content và back_content của user_id
+            self.cursor.execute('''
+                SELECT user_id 
+                FROM user
+                WHERE status = 'on'
+            ''')
+            active_user = self.cursor.fetchone()
+            print("Active Users:", active_user)
+            user_id = active_user[0]
             self.cursor.execute('''
                 SELECT front_content, back_content
                 FROM user_review

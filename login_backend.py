@@ -122,7 +122,6 @@ class UserDatabase:
             conn.commit()
             return True, 'Change status successfully!'
 user_db = UserDatabase()
-    
 
 
 

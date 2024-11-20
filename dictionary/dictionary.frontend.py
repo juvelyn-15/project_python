@@ -74,7 +74,7 @@ class DictionaryUI:
             # Add to existing album section
             with ui.row().classes('w-full gap-2 items-center'):
                 albums = self.backend.get_albums_list()
-                if albums:
+                if albums != []:
                     self.album_select = ui.select(
                         options=albums,
                         label='Select Existing Flashcard Album'

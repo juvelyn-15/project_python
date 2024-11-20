@@ -184,7 +184,7 @@ topic_flashcards = {
 class GameLogic:
     def __init__(self):
         self.albums = {}  # Dictionary lưu trữ album
-        self.review_album = db.load_user_review_album(1)  # Album cho từ cần ôn tập
+        self.review_album = db.load_user_review_album()  # Album cho từ cần ôn tập
         self.current_word = ""
         self.current_info = ""
         self.filtered_words = []
@@ -255,7 +255,7 @@ class GameLogic:
 # backend/review_logic.py
 class ReviewLogic:
     def __init__(self):
-        self.review_album = db.load_user_review_album(1)
+        self.review_album = db.load_user_review_album()
         self.current_index = 0
         self.card_flipped = False
 
