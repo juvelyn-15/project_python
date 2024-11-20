@@ -191,14 +191,20 @@ class FlashcardManager:
         self.albums = albums
         self.topic_flashcards = topic_flashcards
 
-    def get_topics(self):
-        return list(self.topic_flashcards.keys())
+    def get_topics(self): # thêm phần list (self.albums.keys())
+        return list(self.topic_flashcards.keys()) + list(self.albums.keys())
 
     def get_cards_for_topic(self, topic):
+        # chỉnh sửa thêm
+        if topic in self.topic_flashcards:
+            return self.topic_flashcards[topic]
         return self.topic_flashcards.get(topic, [])
 
     def get_card_count(self, topic):
-        return len(self.topic_flashcards.get(topic, []))
+        # chỉnh sửa thêm phần albums
+        if topic in self.topic_flashcards:
+            return len(self.topic_flashcards[topic])
+        return len(self.albums.get(topic, []))
     
 
 
