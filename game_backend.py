@@ -183,7 +183,7 @@ topic_flashcards = {
 
 class GameLogic:
     def __init__(self):
-        self.albums = {}  # Dictionary lưu trữ album
+        self.albums = db.get_albums()  # Dictionary lưu trữ album
         self.review_album = db.load_user_review_album()  # Album cho từ cần ôn tập
         self.current_word = ""
         self.current_info = ""
@@ -191,6 +191,7 @@ class GameLogic:
         self.score = 0
 
     def get_albums(self):
+        print(self.albums)
         return self.albums
     
     def get_topics(self):

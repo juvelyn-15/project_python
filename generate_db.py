@@ -160,6 +160,50 @@ class LearningDatabase:
         except sqlite3.Error as e:
             print(f"Error adding flashcard topic: {e}")
             return False, f"Error adding flashcard topic: {e}"
+    def get_albums(self):
+        try:
+            albums = {}
+            self.cursor.execute('''
+                SELECT user_id 
+                FROM user
+                WHERE status = 'on'
+            ''')
+            active_user = self.cursor.fetchone()
+            if not active_user:
+                return False
+            print("Active Users:", active_user)
+            user_id = active_user[0]
+            # SQL query to fetch the data
+            query = '''
+                SELECT 
+                    pft.topic_name, 
+                    f.front_content AS word, 
+                    f.back_content AS info
+                FROM 
+                    personal_flashcard_topic pft
+                JOIN 
+                    flashcard f ON pft.topic_id = f.topic_id
+                WHERE 
+                    pft.user_id = ?
+            '''
+    
+            # Execute the query
+            self.cursor.execute(query, (user_id,))
+    
+            # Process the results
+            rows = self.cursor.fetchall()
+            for row in rows:
+                topic_name, word, info = row
+                if topic_name not in albums:
+                   albums[topic_name] = []
+                albums[topic_name].append({"word": word, "info": info})
+            print("Final albums dictionary:")
+            print(albums)
+            return albums
+        except sqlite3.Error as e:
+            print(f"Error loading albums: {e}")
+            return []
+
     def load_user_personal_flashcard_topic(self):
         """Load cards for active users from personal_flashcard_topic"""
         try:

@@ -88,6 +88,7 @@ class GameUI:
     def show_mode_options(self, mode):
         self.mode_container.clear()
         with self.mode_container:
+            #sửa logic options 
             options = (list(self.game_logic.get_albums().keys()) if mode == 'album' 
                       else list(self.game_logic.get_topics()))
             
