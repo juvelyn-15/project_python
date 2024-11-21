@@ -117,27 +117,6 @@ class FlashcardStudyPanel:
             
             dialog.open()
 
-    def _save_new_card(self, topic: str, word: str, info: str, dialog=None) -> None:
-        """
-        Save a newly created flashcard.
-        """
-        if not topic or not word or not info:
-            ui.notify('All fields are required', type='negative')
-            return
-        
-        try:
-            # Assuming a method in FlashcardManager to save cards
-            self.flashcard_manager.save_card({
-                'topic': topic,
-                'word': word,
-                'info': info
-            })
-            
-            ui.notify('Card saved successfully', type='positive')
-            if dialog:
-                dialog.close()
-        except Exception as e:
-            ui.notify(f'Error saving card: {str(e)}', type='negative')
 
     def show_topic_view(self) -> None:
         """Switch back to initial view."""
