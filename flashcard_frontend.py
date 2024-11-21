@@ -1,5 +1,5 @@
 from nicegui import ui
-from backend import FlashcardManager
+from flashcard_backend import FlashcardManager
 from typing import List, Dict, Optional
 
 class FlashcardStudyPanel:
@@ -31,20 +31,35 @@ class FlashcardStudyPanel:
             
             # Topic Selection Grid
             with ui.grid(columns=3).classes('w-full gap-4'):
-                self._create_topic_cards()
+                self._create_default_topic_cards()
+                self.create_personal_topic_cards()
+            
 
-    def _create_topic_cards(self) -> None:
+    def _create_default_topic_cards(self) -> None:
         """Create topic selection cards with study statistics."""
-        for topic in self.flashcard_manager.get_topics():
+        for topic in self.flashcard_manager.get_default_topics():
             with ui.card().classes('hover:shadow-lg transition-shadow duration-200'):
                 with ui.column().classes('p-4 gap-2'):
                     ui.label(topic).classes('text-xl font-semibold text-gray-800')
-                    word_count = self.flashcard_manager.get_card_count(topic)
+                    word_count = self.flashcard_manager.get_default_card_count(topic)
                     ui.label(f'{word_count} cards').classes('text-sm text-gray-600')
                     ui.button(
                         'Study Now',
-                        on_click=lambda t=topic: self.show_flashcard_view(t)
+                        on_click=lambda t=topic: self.show_default_flashcard_view(t)
                     ).props('rounded').classes('bg-pink text-white px-4 py-2 hover:bg-pink-700')
+
+    def create_personal_topic_cards(self) -> None:
+        """Create topic selection cards with study statistics."""
+        for topic in self.flashcard_manager.get_personal_topic():
+            with ui.card().classes('hover:shadow-lg transition-shadow duration-200'):
+                with ui.column().classes('p-4 gap-2'):
+                    ui.label(topic).classes('text-xl font-semibold text-gray-800')
+                    word_count = self.flashcard_manager.get_personal_card_count(topic)
+                    ui.label(f'{word_count} cards').classes('text-sm text-gray-600')
+                    ui.button(
+                        'Study Now',
+                        on_click=lambda t=topic: self.show_personal_flashcard_view(t)
+                    ).props('rounded').classes('bg-pink-500 text-white px-4 py-2 hover:bg-pink-100')
 
     def setup_flashcard_view(self) -> None:
         """Initialize the flashcard study view (initially hidden)."""
@@ -103,10 +118,10 @@ class FlashcardStudyPanel:
                 on_click=self.next_card
             ).props('rounded').classes('bg-pink text-white px-4 py-2 hover:bg-pink-700')
 
-    def show_flashcard_view(self, topic: str) -> None:
+    def show_default_flashcard_view(self, topic: str) -> None:
         """Switch to flashcard view and load the selected topic."""
         self.current_topic = topic
-        self.cards = self.flashcard_manager.get_cards_for_topic(topic)
+        self.cards = self.flashcard_manager.get_default_cards_for_topic(topic)
         self.current_index = 0
         self.is_flipped = False
         
@@ -115,7 +130,18 @@ class FlashcardStudyPanel:
         self.topic_view.visible = False
         self.flashcard_view.visible = True
         self.update_card_display()
-
+    def show_personal_flashcard_view(self, topic: str) -> None:
+        """Switch to flashcard view and load the selected topic."""
+        self.current_topic = topic
+        self.cards = self.flashcard_manager.get_personal_card_for_topic(topic)
+        self.current_index = 0
+        self.is_flipped = False
+        
+        # Update UI
+        self.ui_elements['topic_header'].text = f'Studying: {topic}'
+        self.topic_view.visible = False
+        self.flashcard_view.visible = True
+        self.update_card_display()
     def show_topic_view(self) -> None:
         """Switch back to topic selection view."""
         self.flashcard_view.visible = False

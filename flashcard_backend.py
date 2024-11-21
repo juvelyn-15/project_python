@@ -2,7 +2,7 @@
 import requests
 import random
 import re
-
+from generate_db import db
 # Dictionary để lưu trữ các album flashcard 
 albums = {}
 
@@ -191,14 +191,22 @@ class FlashcardManager:
         self.albums = albums
         self.topic_flashcards = topic_flashcards
 
-    def get_topics(self):
+    def get_default_topics(self): #thêm user albums 
         return list(self.topic_flashcards.keys())
+    def get_personal_topic(self):
+        return db.load_user_personal_flashcard_topic()
 
-    def get_cards_for_topic(self, topic):
+    def get_default_cards_for_topic(self, topic):
         return self.topic_flashcards.get(topic, [])
+    
+    def get_personal_card_for_topic(self, topic):
+        return db.load_flashcards_for_topic(topic)
 
-    def get_card_count(self, topic):
+    def get_default_card_count(self, topic):
         return len(self.topic_flashcards.get(topic, []))
+    def get_personal_card_count(self, topic):
+        flashcard_list = self.get_personal_card_for_topic(topic)
+        return len(flashcard_list)
     
 
 

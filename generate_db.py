@@ -189,7 +189,54 @@ class LearningDatabase:
         except sqlite3.Error as e:
             print(f"Error loading review album: {e}")
             return []
-    
+    def load_flashcards_for_topic(self, topic_name):
+        try:
+            # Find active user
+            self.cursor.execute('''
+                SELECT user_id 
+                FROM user
+                WHERE status = 'on'
+            ''')
+            active_user = self.cursor.fetchone()
+            if not active_user:
+                print("No active user found")
+                return []
+            user_id = active_user[0]
+
+            # Find topic_id for the given topic_name and user_id in personal_flashcard_topic
+            self.cursor.execute('''
+                SELECT topic_id 
+                FROM personal_flashcard_topic
+                WHERE user_id = ? AND topic_name = ?
+            ''', (user_id, topic_name))
+            topic_result = self.cursor.fetchone()
+            if not topic_result:
+                print(f"No topic found for user {user_id} and topic {topic_name}")
+                return []
+            topic_id = topic_result[0]
+  
+            # Select flashcards for the found topic_id from flashcard table
+            self.cursor.execute('''
+                SELECT front_content, back_content
+                FROM flashcard
+                WHERE topic_id = ?
+            ''', (topic_id,))
+        
+            # Format results
+            flashcards = [
+                {
+                    "word": row[0],  # front_content
+                    "info": row[1]   # back_content
+                }
+                for row in self.cursor.fetchall()
+            ]
+        
+            print(f"Loaded {len(flashcards)} flashcards for topic {topic_name}")
+            return flashcards
+
+        except sqlite3.Error as e:
+            print(f"Error loading flashcards: {e}")
+            return []
     def add_user_review(self, user_id, front_content, back_content):
         """Add a new user review record"""
         try:
