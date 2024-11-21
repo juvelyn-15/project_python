@@ -119,7 +119,6 @@ class LearningDatabase:
                 INSERT INTO flashcard (topic_id, front_content, back_content)
                 VALUES (?, ?, ?)
             ''', (topic_id, front_content, back_content))
-            self.add_user_review(user_id, front_content, back_content)
             self.conn.commit()
             album_id = self.cursor.lastrowid
         
