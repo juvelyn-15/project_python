@@ -300,7 +300,7 @@ class ReviewLogic:
                 print(front_content, back_content)
                 # Sử dụng index như review_id
                 # Có thể tuỳ chỉnh ngày review nếu cần
-                success = db.add_user_review(user_id = 1, front_content = front_content, back_content = back_content)
+                success = db.add_user_review(front_content = front_content, back_content = back_content)
                 if success:
                     success_count += 1
             print(f"Saved {success_count} reviews back to user_review for user_id=1.")

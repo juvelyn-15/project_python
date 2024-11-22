@@ -3,7 +3,7 @@ from login_backend import User , UserDatabase, user_db
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from typing import List, Dict
-
+from homepage import DashboardApp
 def create_intro_page():
     nav_items: List[Dict] = [
         {"name": "Home", "url": "/", "icon": "home"},
@@ -92,7 +92,7 @@ def login_page():
                     with ui.row().classes('w-full items-center gap-2'):
                         password_input = ui.input('Enter password...').props('rounded').props('outlined required type=password').classes('w-full')
                 # Link quên mật khẩu
-                    ui.link('Forgot password?', '/forgot-password').classes('text-blue-500 text-center hover:text-blue-700 cursor-pointer no-underline')
+                    ui.link('Forgot password?', '/forgot-password').classes('text-pink-500 text-center hover:text-pink-700 cursor-pointer no-underline')
                 
                 # Xử lý đăng nhập
                     async def handle_login():
@@ -108,7 +108,7 @@ def login_page():
                 # Phần link đăng ký
                     with ui.row().classes('w-full justify-center items-center gap-2 mt-4'):
                         ui.label('Do not have account yet?').classes('text-center')
-                        ui.link('Create account', '/register').classes('text-blue-500 hover:text-blue-700 cursor-pointer no-underline')
+                        ui.link('Create account', '/register').classes('text-pink-500 hover:text-pink-700 cursor-pointer no-underline')
 # Trang đăng ký (/register)
 @ui.page('/register')
 def register_page():
@@ -193,7 +193,7 @@ def register_page():
                     ui.notify(message, color='positive' if success else 'negative')
                     if success:
                         register_button.visible = False
-                        ui.link('Back to log in', '/').classes('w-full text-center text-blue-500 hover:text-blue-700 cursor-pointer no-underline')
+                        ui.link('Back to log in', '/').classes('w-full text-center text-pink-500 hover:text-pink-700 cursor-pointer no-underline')
 
                 register_button.on_click(validate_and_register)
 
@@ -232,7 +232,7 @@ def forgot_password_page():
                 
                 # Link quay lại
                 with ui.row().classes('w-full justify-center items-center gap-2 mt-4'):
-                    ui.link('Back to log in', '/').classes('text-blue-500 hover:text-blue-700 cursor-pointer no-underline')
+                    ui.link('Back to log in', '/').classes('text-pink-500 hover:text-pink-700 cursor-pointer no-underline')
 
 # Trang xác minh tài khoản (/verify-account/{username})
 @ui.page('/verify-account/{username}')
@@ -269,7 +269,7 @@ def verify_account_page(username: str):
                 
                 # Link quay lại
                 with ui.row().classes('w-full justify-center items-center gap-2 mt-4'):
-                    ui.link('Back', '/forgot-password').classes('text-blue-500 hover:text-blue-700 cursor-pointer no-underline')
+                    ui.link('Back', '/forgot-password').classes('text-pink-500 hover:text-pink-700 cursor-pointer no-underline')
 
 # Định nghĩa trang đặt lại mật khẩu với tham số username
 @ui.page('/reset-password/{username}')
@@ -318,7 +318,7 @@ def reset_password_page(username: str):
                         reset_button.visible = False
                         # Hiển thị link quay về trang đăng nhập
                         ui.link('Back to log in', '/')\
-                            .classes('w-full text-center text-blue-500 hover:text-blue-700 cursor-pointer no-underline')
+                            .classes('w-full text-center text-pink-500 hover:text-pink-700 cursor-pointer no-underline')
                     else:
                         # Hiển thị thông báo lỗi nếu không tìm thấy user
                         ui.notify('Error occurred!', color='negative')
@@ -329,6 +329,7 @@ def reset_password_page(username: str):
 # Định nghĩa trang chủ sau khi đăng nhập
 @ui.page('/home')
 def home_page():
+    DashboardApp()
     #ui.query('body').style('margin: 0; padding: 0; background: linear-gradient(135deg, #f0f4ff, #e5e7ff);')
     # Tạo cột chứa nội dung trang chủ
     #with ui.column().classes('w-full items-center p-4'):
@@ -338,7 +339,6 @@ def home_page():
         # Tạo nút đăng xuất và chuyển hướng về trang đăng nhập
     #    ui.button('Đăng xuất', on_click=lambda: redirect('/'))\
     #        .classes('bg-red-500 text-white')
-    pass
 
 
 # Khởi chạy ứng dụng

@@ -280,10 +280,21 @@ class LearningDatabase:
         except sqlite3.Error as e:
             print(f"Error loading flashcards: {e}")
             return []
-    def add_user_review(self, user_id, front_content, back_content):
+    def add_user_review(self, front_content, back_content):
         """Add a new user review record"""
         try:
-        # Thực hiện câu lệnh INSERT
+            # Find active user
+            self.cursor.execute('''
+                SELECT user_id 
+                FROM user
+                WHERE status = 'on'
+            ''')
+            active_user = self.cursor.fetchone()
+            if not active_user:
+                print("No active user found")
+                return []
+            user_id = active_user[0]
+            # Thực hiện câu lệnh INSERT
             self.cursor.execute('''
                 INSERT INTO user_review (user_id, front_content, back_content )
                 VALUES (?, ?, ?)
