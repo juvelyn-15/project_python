@@ -77,7 +77,27 @@ class LearningDatabase:
         ''')
         
         self.conn.commit()
-
+    def set_user_status_off_by_username(self):
+            self.cursor.execute("UPDATE user SET status = 'off'")
+            self.conn.commit()
+    def active_user(self):
+        try:
+            self.cursor.execute('''
+                SELECT user_id, username
+                FROM user
+                WHERE status = 'on'
+            ''')
+            active_user = self.cursor.fetchone()
+            print("Active Users:", active_user)
+            if active_user:
+                user_id, username = active_user
+                return username
+            else:
+                print("No active users found.")
+            return None  # If no active user, return None
+        except sqlite3.Error as e:
+            print(f"Error adding flashcard: {e}")
+            return None  
     def add_flashcard(self, topic_name, front_content, back_content):
         try:
             self.cursor.execute('''
@@ -280,21 +300,10 @@ class LearningDatabase:
         except sqlite3.Error as e:
             print(f"Error loading flashcards: {e}")
             return []
-    def add_user_review(self, front_content, back_content):
+    def add_user_review(self, user_id, front_content, back_content):
         """Add a new user review record"""
         try:
-            # Find active user
-            self.cursor.execute('''
-                SELECT user_id 
-                FROM user
-                WHERE status = 'on'
-            ''')
-            active_user = self.cursor.fetchone()
-            if not active_user:
-                print("No active user found")
-                return []
-            user_id = active_user[0]
-            # Thực hiện câu lệnh INSERT
+        # Thực hiện câu lệnh INSERT
             self.cursor.execute('''
                 INSERT INTO user_review (user_id, front_content, back_content )
                 VALUES (?, ?, ?)
